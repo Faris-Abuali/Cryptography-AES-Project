@@ -3,8 +3,21 @@
 ## AES (Advanced Encryption Standard) Implementation
 
 
-![Advanced Encryption Standard](https://upload.wikimedia.org/wikipedia/commons/5/50/AES_%28Rijndael%29_Round_Function.png)
+<p align="center">
+<img 
+src="https://upload.wikimedia.org/wikipedia/commons/5/50/AES_%28Rijndael%29_Round_Function.png" 
+align="center" 
+height="480" 
+width="320"
+alt="Advanced Encryption Standard"
+>
+</p>
 
+## Team Members: 
+- Waleed Zriqi
+- Lena Samaha
+- Weaam Ghannam
+- Faris H. Abuali
 
 ## Getting Started
 
