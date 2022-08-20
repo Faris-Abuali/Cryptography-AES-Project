@@ -34,7 +34,7 @@ public class App {
             }
             if (B3 == 1) {
                 result[0] = 1; // B3 is the gcd(m,b);
-                result[1] = B2; // no inverse
+                result[1] = B2; // B2 is the inverse: b^-1 mod m
                 return result;
             }
 
