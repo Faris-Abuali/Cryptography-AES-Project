@@ -1,49 +1,18 @@
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Polynomial_GF2 {
-    private static int n = 8; // GF(2^n)
-    // private byte[] a = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // a = x^8 + x^4 + x^3 + x
-    // + 1
-    // private byte[] b = { 0, 1, 1, 0, 0, 0, 0, 1, 0 }; // a = x^7 + x^6 + x
 
-    // public void divide_polynomials_GF2(byte[] a, byte[] b) {
-    // byte[] q = new byte[n]; // quotient // [0,0,0,0,0,0,0,1,0]
-    // byte[] r = new byte[n]; // remainder
+public class Polynomial_GF2_Utils {
+    private int n; // GF(2^n)
 
-    // int degreeOfResult = degree(a);
-    // int degreeOfB = degree(b);
-    // byte[] result = Arrays.copyOf(a, a.length); // [0, 0, ...]
-    // // We keep dividing result by b until result degree(result) is less than
-    // // degree(b).
-    // // So, `b` doesn't change. `result` keeps changing until degree(result) <
-    // // degree(b)
-
-    // while (degreeOfResult >= degreeOfB) {
-    // int difference = degreeOfResult - degreeOfB;
-    // // Shifting the `b` by `difference` is equivalent to multiplying `b` by
-    // // X^difference.
-    // q[(n - 1) - difference] = 1; // q[(n-1) - difference] means X^difference
-
-    // System.out.println("initial b: " + Arrays.toString(b));
-
-    // byte[] bShifted = shiftLeft(b, difference);
-    // // It returns new version of b, so it doesn't change the original b
-    // System.out.println("bShifted: " + Arrays.toString(bShifted));
-
-    // result = this.xor(result, bShifted);
-
-    // degreeOfResult = degree(result);
-    // // System.out.println("Degree of result: " + degreeOfResult);
-    // } // end while
-
-    // // System.out.println("Quotient: " + Arrays.toString(q));
-    // // System.out.println("Remainder: " + Arrays.toString(result));
-    // return;
-    // }
+    Polynomial_GF2_Utils() {
+        this.n = 8; // default is GF(2^n)
+    }
+    
+    Polynomial_GF2_Utils(int n) {
+        this.n = n; //GF(2^n)
+    }
 
     public HashMap<String, byte[]> divide_polynomials_GF2(byte[] a, byte[] b) {
 
@@ -143,6 +112,20 @@ public class Polynomial_GF2 {
         // System.out.println("product: " + Arrays.toString(product));
         return product;
     }// end method
+
+    public byte[] multiply_polynomials_GF2_AES(byte[] a, byte[] b) {
+        /**
+         * @param a polynomial in GF(2^8)
+         * 
+         * @param b polynomial in GF(2^8)
+         * 
+         * return product of a and b in GF(2^8) where m(x) = x^8 + x^4 + x^3 + x + 1; because this is the m(x) that is used in AES
+         * 
+         */
+        byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // irreducible polynomial for AES
+
+        return multiply_polynomials_GF2(a, b, m);
+    }
 
     public boolean isZero(byte[] polynomial) {
         for (int i = 0; i < polynomial.length; i++) {
@@ -296,12 +279,12 @@ public class Polynomial_GF2 {
             // B2(x)' = A2(x) - q * B2(x) 👇
             byte[] newB2 = this.xor(
                     table.get("A2"),
-                    this.multiply_polynomials_GF2(q, table.get("B2"), m));
+                    this.multiply_polynomials_GF2_AES(q, table.get("B2")));
 
             // B1(x)' = A1(x) - q * B1(x) 👇
             byte[] newB1 = this.xor(
                     table.get("A1"),
-                    this.multiply_polynomials_GF2(q, table.get("B1"), m));
+                    this.multiply_polynomials_GF2_AES(q, table.get("B1")));
 
             // Update the A's
             table.put("A3", table.get("B3"));
@@ -313,7 +296,7 @@ public class Polynomial_GF2 {
             table.put("B2", newB2);
             table.put("B1", newB1);
 
-            // for (Map.Entry<String, byte[]> entry : table.entrySet()) {
+            // for (Maaes.Entry<String, byte[]> entry : table.entrySet()) {
             // System.out.println(entry.getKey() + " = " +
             // Arrays.toString(entry.getValue()));
             // }
@@ -340,94 +323,5 @@ public class Polynomial_GF2 {
         }
         return result;
     }
-
-    public void sBox() {
-        /*
-         * S-Boxes are used to transform the input bits to output bits.
-         * 
-         * @param input the input bits to be transformed
-         * 
-         * @return the output bits after transformation
-         * 
-         */
-
-        // int index = 6;
-        // System.out.println(Math.floorMod(index - 4, 9));
-        // System.out.println(Math.floorMod(index - 5, 9));
-        // System.out.println(Math.floorMod(index - 6, 9));
-        // System.out.println(Math.floorMod(index - 7, 9));
-
-        byte[] c = { 0, 0, 1, 1, 0, 0, 0, 1, 1 }; // x063h
-        byte[] b = { 0, 1, 0, 0, 0, 1, 0, 1, 0 }; // x08Ah
-        byte[] newB = new byte[b.length - 1];
-
-        byte[] bReversed = this.reverse(Arrays.copyOfRange(b, 1, b.length)); // reversed and length reduced to 8
-        byte[] cReversed = this.reverse(Arrays.copyOfRange(c, 1, c.length)); // reversed and length reduced to 8
-
-        for (int i = 0; i < bReversed.length; i++) {
-            newB[i] = (byte) (bReversed[i] ^
-                    bReversed[(i + 4) % 8] ^
-                    bReversed[(i + 5) % 8] ^
-                    bReversed[(i + 6) % 8] ^
-                    bReversed[(i + 7) % 8] ^
-                    cReversed[i]);
-        }
-
-        newB = this.reverse(newB); // reverse the array [X^7 X^6 X^5 X^4 X^3 X^2 X^1 X^0]
-
-        System.out.println("b = " + Arrays.toString(b));
-        System.out.println("newB = " + Arrays.toString(newB));
-
-    }
-
-    public static void main(String[] args) {
-
-        // int deci = Integer.parseInt("95", 16);
-        // String bin = Integer.toBinaryString(deci);
-        // System.out.println(bin);
-
-        Polynomial_GF2 p = new Polynomial_GF2();
-        // byte[] a = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // a = x^8 + x^4 + x^3 + x + 1
-        // byte[] b = { 0, 1, 1, 0, 0, 0, 0, 1, 0 }; // a = x^7 + x^6 + x
-
-        p.sBox();
-
-        // ----- 😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃 -----
-        // byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 };
-        // byte[] b = { 0, 1, 0, 0, 1, 0, 1, 0, 1 }; // 0x95h = 1001001001
-        // p.multiplicative_inverse(m, b); // b(x)^-1 mod m(x)
-        // ----- 😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃 -----
-
-        // byte[] a = { 0, 0, 0, 0, 0, 1, 1, 0, 1 }; // X^3 + X^2 + 1
-        // byte[] b = { 0, 0, 0, 0, 0, 0, 1, 0, 1 }; // X^2 + 1
-
-        // System.out.println(Arrays.toString(p.shiftLeft(b, 2)));
-        // System.out.println(Arrays.toString(p.xor(a, b)));
-
-        // HashMap<String, byte[]> test = p.divide_polynomials_GF2(a, b);
-
-        // System.out.println(Arrays.toString(test.get("q")));
-        // System.out.println(Arrays.toString(test.get("remainder")));
-
-        // byte[] temp = {0, 1, 0, 0, 1, 1, 1, 1, 1};
-        // System.out.println(p.degree(temp));
-
-        // byte[] m = {0, 0, 0, 0, 1, 0, 0, 1, 1};
-        // p.GF_2_remainder(a1, m);
-
-        // ---- Modular Multiplication of Polynomials in Galois Fields ----
-        // byte[] aa = {0, 0, 0, 0, 0, 1, 1, 0, 1};
-        // byte[] bb = {0, 0, 0, 0, 0, 0, 1, 1, 0};
-
-        // byte[] aa = {0, 0, 0, 0, 0, 0, 0, 1, 1};
-        // byte[] bb = {0, 0, 0, 0, 0, 0, 0, 1, 1};
-        // byte[] mm = {1, 0, 0, 0, 1, 1, 0, 1, 1};
-
-        // byte[] aa = { 0, 0, 0, 0, 0, 0, 0, 1, 1 };
-        // byte[] bb = { 0, 0, 1, 1, 0, 1, 1, 1, 0 };
-        // byte[] mm = { 1, 0, 0, 0, 1, 1, 0, 1, 1 };
-
-        // p.multiply_polynomials_GF2(aa, bb, mm);
-    }
-
-} // end class
+    
+}// end class
