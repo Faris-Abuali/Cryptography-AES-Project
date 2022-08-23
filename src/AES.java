@@ -15,7 +15,7 @@ public class AES {
             { "A6", "8C", "D8", "95" }
     };
 
-    String[][] mixColumnsMatrix = {
+    private static final String[][] MIX_COLS_MATRIX = {
             { "02", "03", "01", "01" },
             { "01", "02", "03", "01" },
             { "01", "01", "02", "03" },
@@ -76,6 +76,8 @@ public class AES {
             // Row number i is shifted left by i-byte circular left shift, i = 1, 2, 3
             for (int col = 0; col < 4; col++) {
                 newState[row][col] = state[row][(col + row) % 4];
+                // row: 3, col: 3
+                // newState[3][3] = state[3][(3 + 3) % 4] --> state[3][2]
             }
         }
         state = newState;
@@ -92,7 +94,7 @@ public class AES {
                 byte[] cell = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
                 // each cell is the result of 4 terms XORed
                 for (int i = 0; i < 4; i++) {
-                    byte[] a = Utils.hexStringToBinArray(mixColumnsMatrix[row][i]);
+                    byte[] a = Utils.hexStringToBinArray(MIX_COLS_MATRIX[row][i]);
                     byte[] b = Utils.hexStringToBinArray(state[i][col]);
 
                     byte[] term = poly.multiply_polynomials_GF2_AES(a, b);
@@ -115,7 +117,18 @@ public class AES {
         // byte[] a = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // a = x^8 + x^4 + x^3 + x + 1
         // byte[] b = { 0, 1, 1, 0, 0, 0, 0, 1, 0 }; // a = x^7 + x^6 + x
 
-        aes.mixColumns();
+        // aes.mixColumns();
+
+        String[][] state = {
+                { "87", "F2", "4D", "97" },
+                { "6E", "4C", "90", "EC" },
+                { "46", "E7", "4A", "C3" },
+                { "A6", "8C", "D8", "95" }
+        };
+
+        String[][] output = aes.shiftRows(state);
+
+        Utils.printMatrix(output);
 
         // ----- 😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃 -----
         // byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 };
