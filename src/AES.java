@@ -5,15 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AES {
-    public static final byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // irreducible polynomial for AES
-    Polynomial_GF2_Utils poly = new Polynomial_GF2_Utils();
+    private static final byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // irreducible polynomial for AES
+    private Polynomial_GF2_Utils poly; // composition
+    private String[][] state;
 
-    String[][] state = {
-            { "87", "F2", "4D", "97" },
-            { "6E", "4C", "90", "EC" },
-            { "46", "E7", "4A", "C3" },
-            { "A6", "8C", "D8", "95" }
-    };
+    public AES(String[][] state) {
+        this.poly = new Polynomial_GF2_Utils(8);
+        this.state = state;
+    }
 
     private static final String[][] MIX_COLS_MATRIX = {
             { "02", "03", "01", "01" },
@@ -22,25 +21,38 @@ public class AES {
             { "03", "01", "01", "02" }
     };
 
-    // ---------------- Stage #1: SubBytes (Substitution Box) ----------------
-    public void sBox() {
-        /*
-         * S-Boxes are used to transform the input bits to output bits.
+    public String[][] getState() {
+        return this.state;
+    }
+    public static byte[] getMofX() {
+        return m;
+    }
+
+    public byte[] sBoxStage1(byte[] b) {
+        /**
+         * Calculates the inverse of the input byte mod m(x)
          * 
-         * @param input the input bits to be transformed
+         * param byte[] b: the input byte to whom the inverse b(x)^-1 mod m(x) is to be
+         * computed.
+         * ex: {"95"} --> {"8A"} in Hexadecimal
          * 
-         * @return the output bits after transformation
-         * 
+         * @return the inverse: (b(x)^-1 mod m(x))
          */
+        return poly.multiplicative_inverse_mod_m(b); // b(x)^-1 mod m(x)
+    } // end method
 
-        // int index = 6;
-        // System.out.println(Math.floorMod(index - 4, 9));
-        // System.out.println(Math.floorMod(index - 5, 9));
-        // System.out.println(Math.floorMod(index - 6, 9));
-        // System.out.println(Math.floorMod(index - 7, 9));
-
-        byte[] c = { 0, 0, 1, 1, 0, 0, 0, 1, 1 }; // x063h
-        byte[] b = { 0, 1, 0, 0, 0, 1, 0, 1, 0 }; // x08Ah
+    public byte[] sBoxStage2(byte[] b) {
+        /**
+         * Receives byte[] b, which is the output of sBoxStage1: b(x)^-1 mod m(x)
+         * and makes the following bit transformation:
+         * bi' = bi XOR b(i+4 mod 8) XOR b(i+5 mod 8) XOR b(i+6 mod 8) + b(i+7 mod 8) +
+         * c(i mod 8)
+         * ex: {"8A"} --> {"2A"} in Hexadecimal
+         * 
+         * @return a new byte[] array after bit transformation.
+         */
+        // ------------------- Bit Transformation -------------------
+        byte[] c = { 0, 0, 1, 1, 0, 0, 0, 1, 1 }; // x0{63} hexa
         byte[] newB = new byte[b.length - 1];
 
         byte[] bReversed = poly.reverse(Arrays.copyOfRange(b, 1, b.length)); // reversed and length reduced to 8
@@ -57,12 +69,38 @@ public class AES {
 
         newB = poly.reverse(newB); // reverse the array [X^7 X^6 X^5 X^4 X^3 X^2 X^1 X^0]
 
-        System.out.println("b = " + Arrays.toString(b));
-        System.out.println("newB = " + Arrays.toString(newB));
+        // System.out.println("b = " + Arrays.toString(b));
+        // System.out.println("newB = " + Arrays.toString(newB));
+        return newB;
+    } // end method
+
+    public byte[] sBoxSingleCell(byte[] b) {
+        byte[] bInverse = this.sBoxStage1(b); // b(x)^-1 mod m(x)
+        return this.sBoxStage2(bInverse); // bit transformation (ex: "8A" --> "2A")
     }
 
+    // ---------------- Stage #1: SubBytes (Substitution Box) ----------------
+    public void sBox() {
+        /*
+         * S-Boxes are used to transform the input bits to output bits.
+         * 
+         * @param input the input bits to be transformed
+         * 
+         * @return the output bits after transformation
+         * 
+         */
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                String hexString = this.state[row][col]; // ex: {"95"}
+                byte[] cell = Utils.hexStringToBinArray(hexString); // ex: [0, 1,0,0,1, 0, 1, 0, 1];
+                byte[] sBoxOutput = this.sBoxSingleCell(cell);
+                this.state[row][col] = Utils.binArrayToHexString(sBoxOutput);
+            }
+        }
+    }// end method sBox
+
     // ---------------- Stage #2: ShiftRows ----------------
-    public String[][] shiftRows(String[][] state) {
+    public void shiftRows() {
         String[][] newState = new String[4][4];
 
         newState[0] = state[0]; // The 1st row (number 0) is not altered.
@@ -75,17 +113,18 @@ public class AES {
         for (int row = 1; row < 4; row++) {
             // Row number i is shifted left by i-byte circular left shift, i = 1, 2, 3
             for (int col = 0; col < 4; col++) {
-                newState[row][col] = state[row][(col + row) % 4];
+                newState[row][col] = this.state[row][(col + row) % 4];
                 // row: 3, col: 3
                 // newState[3][3] = state[3][(3 + 3) % 4] --> state[3][2]
             }
         }
-        state = newState;
-        return state;
+        // state = newState;
+        // return state;
+        this.state = newState;
     }
 
     // ---------------- Stage #3: MixColumns ----------------
-    public String[][] mixColumns() {
+    public void mixColumns() {
 
         String[][] product = new String[4][4];
 
@@ -95,7 +134,7 @@ public class AES {
                 // each cell is the result of 4 terms XORed
                 for (int i = 0; i < 4; i++) {
                     byte[] a = Utils.hexStringToBinArray(MIX_COLS_MATRIX[row][i]);
-                    byte[] b = Utils.hexStringToBinArray(state[i][col]);
+                    byte[] b = Utils.hexStringToBinArray(this.state[i][col]);
 
                     byte[] term = poly.multiply_polynomials_GF2_AES(a, b);
 
@@ -106,35 +145,7 @@ public class AES {
             } // end for row
         } // end for col
 
-        // Now print the matrix products:
-        Utils.printMatrix(product);
-        return product;
+        // return product;
+        this.state = product;
     }// end method
-
-    public static void main(String[] args) {
-
-        AES aes = new AES();
-        // byte[] a = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // a = x^8 + x^4 + x^3 + x + 1
-        // byte[] b = { 0, 1, 1, 0, 0, 0, 0, 1, 0 }; // a = x^7 + x^6 + x
-
-        // aes.mixColumns();
-
-        String[][] state = {
-                { "87", "F2", "4D", "97" },
-                { "6E", "4C", "90", "EC" },
-                { "46", "E7", "4A", "C3" },
-                { "A6", "8C", "D8", "95" }
-        };
-
-        String[][] output = aes.shiftRows(state);
-
-        Utils.printMatrix(output);
-
-        // ----- 😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃 -----
-        // byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 };
-        // byte[] b = { 0, 1, 0, 0, 1, 0, 1, 0, 1 }; // 0x95h = 1001001001
-        // aes.multiplicative_inverse(m, b); // b(x)^-1 mod m(x)
-        // ----- 😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃😃 -----
-
-    }
 } // end class

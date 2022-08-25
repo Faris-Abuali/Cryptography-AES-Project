@@ -22,7 +22,7 @@ public class Utils {
         while (hexString.length() < 2) {
             hexString = "0" + hexString;
         }
-        return hexString;
+        return hexString.toUpperCase();
     } // end method
 
     public static byte[] hexStringToBinArray(String strHex) {
@@ -45,6 +45,15 @@ public class Utils {
     } // end method
 
     public static void printMatrix(String[][] state) {
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                System.out.print(state[row][col] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public static void printMatrix(byte[][] state) {
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
                 System.out.print(state[row][col] + " ");

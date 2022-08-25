@@ -216,7 +216,7 @@ public class Polynomial_GF2_Utils {
         return result;
     }
 
-    public byte[][] multiplicative_inverse(byte[] m, byte[] b) {
+    public byte[] multiplicative_inverse(byte[] m, byte[] b) {
 
         /*
          * Using the extended Euclidean algorithm, will find the multiplicative inverse
@@ -303,10 +303,14 @@ public class Polynomial_GF2_Utils {
 
         } // end while
 
-        System.out.println("gcd(m,b) = " + Arrays.toString(result[0]));
-        System.out.println("b^-1 mod m = " + Arrays.toString(result[1]));
-        return result;
+        // System.out.println("gcd(m,b) = " + Arrays.toString(result[0]));
+        // System.out.println("b^-1 mod m = " + Arrays.toString(result[1]));
+        return result[1];
     } // end method
+
+    public byte[] multiplicative_inverse_mod_m(byte[] b) {
+        return this.multiplicative_inverse(AES.getMofX(), b); // b(x)^-1 mod m(x)
+    }
 
     public byte[] reverse(byte[] arr) {
         /*
@@ -323,5 +327,4 @@ public class Polynomial_GF2_Utils {
         }
         return result;
     }
-    
 }// end class
