@@ -114,9 +114,4 @@ public class Utils {
     //     }
     // } // end method
 
-
-    public static void main(String[] args) {
-        byte[] b = Utils.hexStringToBinArray("95");
-        System.out.println();
-    }
 }// end class
