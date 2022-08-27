@@ -14,10 +14,10 @@ alt="Advanced Encryption Standard"
 </p>
 
 ## Team Members: 
-- Waleed Zriqi
-- Lena Samaha
-- Weaam Ghannam
 - Faris H. Abuali
+- Lena Samaha
+- Waleed Zriqi
+- Weaam Ghannam
 
 
 ## Task definition:
