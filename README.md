@@ -1,6 +1,7 @@
 # Cryptography & Networks Security - Team Project
 
-## AES (Advanced Encryption Standard) Implementation
+## Testing the Modules of AES Encryption Algorithm (S-BOX, Shift rows, and mix columns)
+#### This is not a full implementation of AES, this branch shows just the 3 modules: (S-BOX, Shift rows, and mix columns). You can find the full implementation in the `main` branch. 😀
 
 
 <p align="center">
