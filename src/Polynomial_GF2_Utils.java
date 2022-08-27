@@ -2,16 +2,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class Polynomial_GF2_Utils {
     private int n; // GF(2^n)
 
     Polynomial_GF2_Utils() {
         this.n = 8; // default is GF(2^n)
     }
-    
+
     Polynomial_GF2_Utils(int n) {
-        this.n = n; //GF(2^n)
+        this.n = n; // GF(2^n)
     }
 
     public HashMap<String, byte[]> divide_polynomials_GF2(byte[] a, byte[] b) {
@@ -54,15 +53,22 @@ public class Polynomial_GF2_Utils {
         return toBeReturned; // {q, remainder}
     }
 
+    /**
+     * Returns the quotient and remainder of `a`/`b`.
+     * 
+     * @param a polynomial in GF(2^n)
+     * @param m polynomial in GF(2^n)
+     * @return the quotient and remainder of `a`/`b`
+     */
     public byte[] GF_2_remainder(byte[] a, byte[] m) {
-        // returns the remainder of a mod m
 
         int degreeOfResult = degree(a);
         int degreeOfM = degree(m);
-        byte[] result = Arrays.copyOf(a, a.length);
-        // We keep dividing result by b until result degree(result) is less than
+        byte[] remainder = Arrays.copyOf(a, a.length);
+        // We keep dividing remainder by b until remainder degree(remainder) is less
+        // than
         // degree(b).
-        // So, `b` doesn't change. `result` keeps changing until degree(result) <
+        // So, `b` doesn't change. `remainder` keeps changing until degree(remainder) <
         // degree(b)
 
         while (degreeOfResult >= degreeOfM) {
@@ -70,14 +76,14 @@ public class Polynomial_GF2_Utils {
             byte[] bShifted = shiftLeft(m, difference);
             // It returns new version of m, so it doesn't change the original m
 
-            result = this.xor(result, bShifted);
+            remainder = this.xor(remainder, bShifted);
 
-            degreeOfResult = degree(result);
-            // System.out.println("Degree of result: " + degreeOfResult);
+            degreeOfResult = degree(remainder);
+            // System.out.println("Degree of remainder: " + degreeOfResult);
         } // end while
 
-        // System.out.println("Remainder: " + Arrays.toString(result));
-        return result;
+        // System.out.println("Remainder: " + Arrays.toString(remainder));
+        return remainder;
     } // end method
 
     // ---- Modular Multiplication of Polynomials in Galois Fields ----
@@ -119,7 +125,8 @@ public class Polynomial_GF2_Utils {
          * 
          * @param b polynomial in GF(2^8)
          * 
-         * return product of a and b in GF(2^8) where m(x) = x^8 + x^4 + x^3 + x + 1; because this is the m(x) that is used in AES
+         *          return product of a and b in GF(2^8) where m(x) = x^8 + x^4 + x^3 +
+         *          x + 1; because this is the m(x) that is used in AES
          * 
          */
         byte[] m = { 1, 0, 0, 0, 1, 1, 0, 1, 1 }; // irreducible polynomial for AES
@@ -214,6 +221,29 @@ public class Polynomial_GF2_Utils {
             result[i] = (byte) (b ^ arr2[i++]);
 
         return result;
+    }
+
+    public Word xorWord(Word w1, Word w2) {
+        /*
+         * 
+         * 
+         * @param w1 a Word
+         * 
+         * @param w2 a Word
+         * 
+         * @return a new word: (w1 XOR w1)
+         * 
+         */
+        Word resultWord = new Word();
+
+        for (int i = 0; i < w1.size(); i++) {
+            byte[] b1 = Utils.hexStringToBinArray(w1.getByte(i));
+            byte[] b2 = Utils.hexStringToBinArray(w2.getByte(i));
+            byte[] resultByte = this.xor(b1, b2);
+
+            resultWord.setByte(i, Utils.binArrayToHexString(resultByte));
+        }
+        return resultWord;
     }
 
     public byte[] multiplicative_inverse(byte[] m, byte[] b) {
