@@ -14,8 +14,8 @@ alt="Advanced Encryption Standard"
 </p>
 
 ## Team Members: 
-- Lena Samaha
 - Faris H. Abuali
+- Lena Samaha
 - Waleed Zriqi
 - Weaam Ghannam
 
