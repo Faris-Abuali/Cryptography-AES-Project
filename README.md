@@ -27,7 +27,8 @@ It is an application to test AES modules (S-BOX, Shift rows, mix columns), which
 First we have to talk about Advanced Encryption Standard algorithm (AES), It also Known as Rijndael algorithm, It is a symmetric block cipher algorithm that takes a block size of 128 bits and converts them into cipher text using keys of 128, 192 and 256 bits. AES contains several rounds; the number of rounds is dependent on key length.
 The plain text size is 16 byte which is divided to 4 words, each word is the column of 4*4 matrix, as shown in this figure:
 ![image](https://user-images.githubusercontent.com/54215462/187033125-f0d8d033-1363-4f02-8d81-34e5a29bc1a5.png)
-This matrix called state matrix, which is modified at each round.
+<br/>
+This matrix is called state matrix, which is modified at each round.
 
 Each round has 4 stages (Except for the last round):
 1.	### Substitute bytes – Uses clever lockup table (S-Box) to map one byte to another
