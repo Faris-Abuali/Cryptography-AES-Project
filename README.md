@@ -101,7 +101,16 @@ alt="One Round of AES"
 >
 </p>
 
+## Testing Everything (Encoding, Encryption, Decryption, then Decoding):
+<img width="548" alt="image" src="https://user-images.githubusercontent.com/54215462/187188034-7b9c9e93-da95-481c-ac2b-40075fe0029b.png">
+<img width="440" alt="image" src="https://user-images.githubusercontent.com/54215462/187188221-5b861229-9df7-4c32-a0ff-d3f62962f9cd.png">
 
+<img width="581" alt="image" src="https://user-images.githubusercontent.com/54215462/187186340-4def4e5a-1eba-49da-b38a-ea04dbc2a5a9.png">
+<img width="323" alt="image" src="https://user-images.githubusercontent.com/54215462/187186394-35cf7a58-f6cc-4b29-9897-68d9812e8566.png">
+<img width="397" alt="image" src="https://user-images.githubusercontent.com/54215462/187186725-99a2b6fd-f144-445d-a0ec-3ed6cda367b9.png">
+<img width="301" alt="image" src="https://user-images.githubusercontent.com/54215462/187186768-4c21861b-252d-461d-bc56-7f5bbe145fac.png">
+<img width="414" alt="image" src="https://user-images.githubusercontent.com/54215462/187186901-59a29819-255e-443d-b864-ae60577e05f2.png">
+<img width="578" alt="image" src="https://user-images.githubusercontent.com/54215462/187187055-309e1870-86c1-4dd4-8284-7fc80baebf9b.png">
 
 
 ## Getting Started
